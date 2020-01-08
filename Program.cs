@@ -56,7 +56,6 @@ class Program
 		};
 		var response = await _client.SendAsync(request);
 		if (response.IsSuccessStatusCode) return response.Content.ReadAsStringAsync().Result;
-		// TODO: Handle failure better.
 		throw new HttpRequestException($"Network error. {(int)response.StatusCode}: {response.ReasonPhrase}");
 	}
 }
