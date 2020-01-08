@@ -11,14 +11,20 @@ class Program
 
 	static void Main(string[] args)
 	{
-		Console.WriteLine(MakeConsoleOutput(args.Length > 0 ? args[0].ToLower() : ""));
+		var output = string.Empty;
+		try {
+		output = MakeConsoleOutput(args.Length > 0 ? args[0].ToLower() : "");
+		} catch (Exception e) {
+			output = e.Message;
+		}
+		Console.WriteLine(output);
 	}
 
 	public static string MakeConsoleOutput(string filter)
 	{
 		var info = GetStationInformation().OrderBy(x => x.name).Where(x => x.name.ToLower().Contains(filter));
 		var status = GetStationStatus().ToDictionary(x => x.station_id);
-		var res = String.Concat(info
+		var res = string.Concat(info
 			.Select(x => $"\n{x.name}\n\tLedige parkeringer: {status[x.station_id].num_docks_available}\t Ledige sykler: {status[x.station_id].num_bikes_available}\n"));
 		return res;
 	}
@@ -35,17 +41,9 @@ class Program
 
 	private static T GetFromApi<T>(string url)
 	{
-		try
-		{
-			var raw = SendRequest(url).Result;
-			var deserialized = JsonSerializer.Deserialize<T>(raw);
-			return deserialized;
-		}
-		catch
-		{
-			return default(T);
-		}
-
+		var raw = SendRequest(url).Result;
+		var deserialized = JsonSerializer.Deserialize<T>(raw);
+		return deserialized;
 	}
 
 	private async static Task<string> SendRequest(string tail)
@@ -59,8 +57,7 @@ class Program
 		var response = await _client.SendAsync(request);
 		if (response.IsSuccessStatusCode) return response.Content.ReadAsStringAsync().Result;
 		// TODO: Handle failure better.
-		Console.WriteLine("Network error.");
-		throw new HttpRequestException();
+		throw new HttpRequestException($"Network error. {(int)response.StatusCode}: {response.ReasonPhrase}");
 	}
 }
 
