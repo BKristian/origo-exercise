@@ -5,10 +5,19 @@ class Program
 {
 	static void Main(string[] args)
 	{
+		var argsExist = args.Length > 0;
+		if (argsExist && args[0] == "-rest")
+			Console.WriteLine("Do REST API stuff here.");
+		else
+			PrintToConsole(argsExist ? args[0] : "");
+	}
+
+	private static void PrintToConsole(string search)
+	{
 		var output = string.Empty;
 		try
 		{
-			output = MakeConsoleOutput(args.Length > 0 ? args[0].ToLower() : "");
+			output = MakeConsoleOutput(search.ToLower());
 		}
 		catch (Exception e)
 		{
@@ -17,7 +26,7 @@ class Program
 		Console.WriteLine(output);
 	}
 
-	public static string MakeConsoleOutput(string filter)
+	private static string MakeConsoleOutput(string filter)
 	{
 		var info = Repository.GetStationInformation().OrderBy(x => x.name).Where(x => x.name.ToLower().Contains(filter));
 		var status = Repository.GetStationStatus().ToDictionary(x => x.station_id);
