@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+// If there were more models necessary I would consider splitting this into multiple files
+
 public class StationInformation
 {
 	public string station_id { get; set; }
