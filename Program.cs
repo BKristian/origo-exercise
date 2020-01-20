@@ -1,37 +1,22 @@
-﻿using System.Linq;
-using System;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 class Program
 {
-	static void Main(string[] args)
+	public static void Main(string[] args)
 	{
 		var argsExist = args.Length > 0;
 		if (argsExist && args[0] == "-rest")
-			Console.WriteLine("Do REST API stuff here.");
+            CreateHostBuilder().Build().Run();
 		else
-			PrintToConsole(argsExist ? args[0] : "");
+			Console.WriteLine(new ConsoleOutputMaker().MakeConsoleOutput(argsExist ? args[0] : ""));
 	}
 
-	private static void PrintToConsole(string search)
-	{
-		var output = string.Empty;
-		try
-		{
-			output = MakeConsoleOutput(search.ToLower());
-		}
-		catch (Exception e)
-		{
-			output = e.Message;
-		}
-		Console.WriteLine(output);
-	}
-
-	private static string MakeConsoleOutput(string filter)
-	{
-		var info = Repository.GetStationInformation().OrderBy(x => x.name).Where(x => x.name.ToLower().Contains(filter));
-		var status = Repository.GetStationStatus().ToDictionary(x => x.station_id);
-		var res = string.Concat(info
-			.Select(x => $"\n{x.name}\n\tLedige parkeringer: {status[x.station_id].num_docks_available}\t Ledige sykler: {status[x.station_id].num_bikes_available}\n"));
-		return res;
-	}
+	public static IHostBuilder CreateHostBuilder() =>
+	Host.CreateDefaultBuilder()
+		 .ConfigureWebHostDefaults(webBuilder =>
+		 {
+			 webBuilder.UseStartup<Startup>();
+		 });
 }
