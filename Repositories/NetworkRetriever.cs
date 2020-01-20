@@ -1,31 +1,25 @@
-using System.Threading.Tasks;
-using System;
 using System.Net.Http;
-using System.Collections.Generic;
+using System;
 using System.Text.Json;
+using System.Threading.Tasks;
 
-static class Repository
+class NetworkRetriever : INetworkRetriever
 {
-	private static readonly HttpClient _client = new HttpClient();
+	private HttpClient _client;
 
-	public static IEnumerable<StationInformation> GetStationInformation()
+	public NetworkRetriever()
 	{
-		return GetFromApi<OrigoResponse<StationInformation>>("station_information.json").data.stations;
+		_client = new HttpClient();
 	}
 
-	public static IEnumerable<StationStatus> GetStationStatus()
-	{
-		return GetFromApi<OrigoResponse<StationStatus>>("station_status.json").data.stations;
-	}
-
-	private static T GetFromApi<T>(string url)
+	public T GetFromApi<T>(string url)
 	{
 		var raw = SendRequest(url).Result;
 		var deserialized = JsonSerializer.Deserialize<T>(raw);
 		return deserialized;
 	}
 
-	private async static Task<string> SendRequest(string tail)
+	private async Task<string> SendRequest(string tail)
 	{
 		var request = new HttpRequestMessage
 		{
